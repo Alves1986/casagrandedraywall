@@ -1,6 +1,6 @@
 import { fmtDateShort, fmtBRL } from '@/lib/utils'
 import Link from 'next/link'
-import { FilePlus, Search } from 'lucide-react'
+import { FilePlus, Plus, Search } from 'lucide-react'
 import { createClient } from '@/lib/supabase/server'
 import type { Orcamento } from '@/types'
 

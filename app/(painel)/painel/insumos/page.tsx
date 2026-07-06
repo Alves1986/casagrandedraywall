@@ -1,3 +1,4 @@
+import Link from 'next/link'
 import { Plus, Search, AlertTriangle } from 'lucide-react'
 import { createClient } from '@/lib/supabase/server'
 import type { Insumo } from '@/types'
