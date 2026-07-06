@@ -29,6 +29,8 @@ export default function CalculadoraOrcamento() {
   // Contato
   const [nome, setNome] = useState('')
   const [telefone, setTelefone] = useState('')
+  const [cep, setCep] = useState('')
+  const [endereco, setEndereco] = useState('')
   
   // Result
   const [estimativa, setEstimativa] = useState<EstimativaResult | null>(null)
@@ -36,8 +38,7 @@ export default function CalculadoraOrcamento() {
   const handleNext = () => setStep(s => s + 1)
   const handlePrev = () => setStep(s => Math.max(1, s - 1))
 
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault()
+  const handleSubmit = async () => {
     if (!nome || !telefone || !servico || !quantidade) return
     
     setLoading(true)
@@ -51,6 +52,8 @@ export default function CalculadoraOrcamento() {
           tipo: tipoDrywall,
           tipo_obra: tipoEletrica,
           pavimentos: Number(pavimentos),
+          cep,
+          endereco
         },
         contato: { nome, telefone }
       }
@@ -67,32 +70,50 @@ export default function CalculadoraOrcamento() {
       if (!res.ok) throw new Error(data.error || 'Erro ao calcular orçamento')
       
       setEstimativa(data.estimativa)
-      setStep(4)
+      setStep(5)
     } catch (err: any) {
       setError(err.message)
+      setStep(4) // Retorna para a revisão em caso de erro
     } finally {
       setLoading(false)
     }
   }
 
   const renderStepIndicator = () => (
-    <div className="flex items-center justify-center gap-3 mb-10">
-      {[1, 2, 3].map(s => (
-        <div key={s} className="flex items-center gap-3">
+    <div className="flex items-center justify-center gap-1 md:gap-3 mb-10">
+      {[1, 2, 3, 4].map(s => (
+        <div key={s} className="flex items-center gap-1 md:gap-3">
           <div className={`w-8 h-8 rounded-full flex items-center justify-center font-mono text-sm border-2 transition-colors
             ${step === s ? 'border-gold text-gold bg-gold/10' : 
               step > s ? 'border-gold bg-gold text-black' : 'border-line text-muted'}`}>
             {step > s ? <CheckCircle2 size={16} /> : s}
           </div>
-          {s < 3 && <div className={`w-12 h-[2px] ${step > s ? 'bg-gold' : 'bg-line'}`} />}
+          {s < 4 && <div className={`w-4 md:w-12 h-[2px] ${step > s ? 'bg-gold' : 'bg-line'}`} />}
         </div>
       ))}
     </div>
   )
 
+  const handleCepBlur = async () => {
+    if (cep.length >= 8) {
+      const cleanCep = cep.replace(/\D/g, '')
+      if (cleanCep.length === 8) {
+        try {
+          const res = await fetch(`https://viacep.com.br/ws/${cleanCep}/json/`)
+          const data = await res.json()
+          if (!data.erro) {
+            setEndereco(`${data.logradouro}, ${data.bairro} - ${data.localidade}/${data.uf}`)
+          }
+        } catch (e) {
+          // Ignore, fallback to manual entry
+        }
+      }
+    }
+  }
+
   return (
     <div className="max-w-2xl mx-auto w-full">
-      {step < 4 && renderStepIndicator()}
+      {step < 5 && renderStepIndicator()}
 
       <div className="card p-8 md:p-12 relative overflow-hidden">
         {loading && (
@@ -101,7 +122,7 @@ export default function CalculadoraOrcamento() {
           </div>
         )}
 
-        <form onSubmit={handleSubmit}>
+        <form onSubmit={(e) => { e.preventDefault(); if (step === 3) handleNext(); }}>
           {/* STEP 1: Serviço */}
           {step === 1 && (
             <div className="animate-fade-in">
@@ -213,46 +234,105 @@ export default function CalculadoraOrcamento() {
             </div>
           )}
 
-          {/* STEP 3: Contato */}
+          {/* STEP 3: Contato e Localização */}
           {step === 3 && (
             <div className="animate-fade-in">
               <button type="button" onClick={handlePrev} className="flex items-center gap-2 text-xs font-mono text-muted hover:text-gold mb-6 uppercase tracking-widest">
                 <ChevronLeft size={14} /> Voltar
               </button>
 
-              <h2 className="display text-2xl mb-2">Para onde enviamos o resultado?</h2>
-              <p className="text-muted mb-8">Deixe seu contato para visualizar a estimativa na hora.</p>
-
-              {error && (
-                <div className="bg-red-500/10 border border-red-500/30 text-red-400 p-4 text-sm mb-6">
-                  {error}
-                </div>
-              )}
+              <h2 className="display text-2xl mb-2">Contato e Localização</h2>
+              <p className="text-muted mb-8">Preencha seus dados para finalizarmos sua solicitação.</p>
 
               <div className="space-y-6">
-                <div>
-                  <label className="form-label">Seu Nome</label>
-                  <input type="text" required value={nome} onChange={e => setNome(e.target.value)}
-                    className="form-input" placeholder="Como podemos te chamar?" />
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                  <div>
+                    <label className="form-label">Seu Nome</label>
+                    <input type="text" required value={nome} onChange={e => setNome(e.target.value)}
+                      className="form-input" placeholder="Como podemos te chamar?" />
+                  </div>
+                  <div>
+                    <label className="form-label">WhatsApp</label>
+                    <input type="tel" required value={telefone} onChange={e => setTelefone(e.target.value)}
+                      className="form-input" placeholder="(42) 9 9999-9999" />
+                  </div>
                 </div>
-                <div>
-                  <label className="form-label">WhatsApp</label>
-                  <input type="tel" required value={telefone} onChange={e => setTelefone(e.target.value)}
-                    className="form-input" placeholder="(42) 9 9999-9999" />
+                
+                <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+                  <div className="md:col-span-1">
+                    <label className="form-label">CEP</label>
+                    <input type="text" required value={cep} onChange={e => setCep(e.target.value)} onBlur={handleCepBlur}
+                      className="form-input" placeholder="00000-000" />
+                  </div>
+                  <div className="md:col-span-2">
+                    <label className="form-label">Endereço / Região</label>
+                    <input type="text" required value={endereco} onChange={e => setEndereco(e.target.value)}
+                      className="form-input" placeholder="Rua, Bairro, Cidade" />
+                  </div>
                 </div>
               </div>
 
-              <div className="mt-8">
-                <button type="submit" className="btn-gold w-full justify-center">
-                  Ver estimativa agora
+              <div className="mt-8 flex justify-end">
+                <button type="submit" className="btn-gold">
+                  Avançar para Revisão <ArrowRight size={14} />
                 </button>
               </div>
             </div>
           )}
         </form>
 
-        {/* STEP 4: Resultado */}
-        {step === 4 && estimativa && (
+        {/* STEP 4: Revisão */}
+        {step === 4 && (
+          <div className="animate-fade-in">
+            <button type="button" onClick={handlePrev} className="flex items-center gap-2 text-xs font-mono text-muted hover:text-gold mb-6 uppercase tracking-widest">
+              <ChevronLeft size={14} /> Editar dados
+            </button>
+
+            <h2 className="display text-2xl mb-2">Revisão do Orçamento</h2>
+            <p className="text-muted mb-8">Confira os dados abaixo antes de gerar a estimativa.</p>
+
+            {error && (
+              <div className="bg-red-500/10 border border-red-500/30 text-red-400 p-4 text-sm mb-6">
+                {error}
+              </div>
+            )}
+
+            <div className="bg-panel-2 border border-line p-6 mb-8 space-y-4">
+              <div className="grid grid-cols-2 gap-4">
+                <div>
+                  <div className="text-xs text-muted uppercase tracking-wider mb-1">Serviço</div>
+                  <div className="font-display text-lg text-gold">{SERVICOS.find(s => s.id === servico)?.title}</div>
+                </div>
+                <div>
+                  <div className="text-xs text-muted uppercase tracking-wider mb-1">Área/Quantidade</div>
+                  <div className="font-display text-lg">{quantidade} {servico === 'eletrica' ? 'pontos' : 'm²'}</div>
+                </div>
+              </div>
+              
+              <div className="border-t border-line my-4 pt-4">
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  <div>
+                    <div className="text-xs text-muted uppercase tracking-wider mb-1">Cliente</div>
+                    <div>{nome} <span className="text-muted text-sm">({telefone})</span></div>
+                  </div>
+                  <div>
+                    <div className="text-xs text-muted uppercase tracking-wider mb-1">Local</div>
+                    <div className="text-sm">{endereco || 'Não informado'} <span className="text-muted">CEP: {cep}</span></div>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <div className="mt-8">
+              <button type="button" onClick={handleSubmit} className="btn-gold w-full justify-center text-lg py-4">
+                Confirmar e Gerar Estimativa
+              </button>
+            </div>
+          </div>
+        )}
+
+        {/* STEP 5: Resultado */}
+        {step === 5 && estimativa && (
           <div className="animate-fade-up text-center">
             <div className="w-16 h-16 bg-gold/10 border border-gold rounded-full flex items-center justify-center mx-auto mb-6 text-gold">
               <CheckCircle2 size={32} />
