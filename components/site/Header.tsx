@@ -22,13 +22,13 @@ export default function Header() {
       <div className="max-w-7xl mx-auto px-6 h-16 flex items-center justify-between">
         {/* Logo */}
         <Link href="/" className="flex items-center gap-3">
-          <Image src="/branding/logo.webp" alt="Casa Grande Drywall" width={36} height={36}
+          <Image src="/branding/logo.webp" alt="Casa Grande Drywall" width={56} height={56}
             className="object-contain" />
           <div>
-            <div className="font-display text-sm font-medium leading-none" style={{ color: 'var(--text)' }}>
+            <div className="font-display text-lg font-medium leading-none" style={{ color: 'var(--text)' }}>
               Casa Grande
             </div>
-            <div className="font-mono text-[9px] tracking-widest uppercase" style={{ color: 'var(--gold)' }}>
+            <div className="font-mono text-[10px] tracking-widest uppercase mt-1" style={{ color: 'var(--gold)' }}>
               Drywall • Elétrica • Steel Frame
             </div>
           </div>
@@ -46,6 +46,9 @@ export default function Header() {
         </nav>
 
         <div className="hidden md:flex items-center gap-4">
+          <Link href="/painel" className="text-sm font-medium transition-colors" style={{ color: 'var(--muted)' }} onMouseOver={e => e.currentTarget.style.color = 'var(--text)'} onMouseOut={e => e.currentTarget.style.color = 'var(--muted)'}>
+            Área Admin
+          </Link>
           <Link href="/orcamento" className="btn-gold text-xs">
             Orçamento grátis
           </Link>
@@ -71,6 +74,13 @@ export default function Header() {
               {n.label}
             </Link>
           ))}
+          <Link href="/painel" 
+            className="block py-3 text-sm border-b"
+            style={{ color: 'var(--text)', borderColor: 'var(--line)' }}
+            onClick={() => setOpen(false)}
+          >
+            Área Admin (CRM)
+          </Link>
           <Link href="/orcamento" className="btn-gold w-full text-center mt-4 block">
             Orçamento grátis
           </Link>
