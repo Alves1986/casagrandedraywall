@@ -1,0 +1,244 @@
+/* ============================================================
+   SISTEMA CASA GRANDE DRYWALL — Design System Global
+   Fontes: Fraunces (display) / Manrope (text) / IBM Plex Mono (code)
+   Paleta: Ouro #D4AF37 · Preto #0F0F0F · Branco #F5F5F5
+   ============================================================ */
+@import url('https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,400;9..144,500;9..144,600&family=Manrope:wght@300;400;500;600;700&family=IBM+Plex+Mono:wght@400;500&display=swap');
+
+@import "tailwindcss";
+
+/* ──── CSS Custom Properties ──── */
+:root {
+  --bg:          #0a0a0a;
+  --panel:       #141414;
+  --panel-2:     #1e1e1e;
+  --panel-3:     #252525;
+  --line:        rgba(212,175,55,0.10);
+  --line-hard:   rgba(212,175,55,0.28);
+  --gold:        #d4af37;
+  --gold-bright: #e8d5a5;
+  --gold-dim:    rgba(212,175,55,0.07);
+  --gold-glow:   rgba(212,175,55,0.15);
+  --text:        #f5f5f5;
+  --muted:       #888888;
+  --green:       #4ade80;
+  --red:         #f87171;
+  --blue:        #60a5fa;
+  --orange:      #fb923c;
+  --font-display: 'Fraunces', Georgia, serif;
+  --font-body:    'Manrope', system-ui, sans-serif;
+  --font-mono:    'IBM Plex Mono', monospace;
+  --trans:        0.22s cubic-bezier(0.4,0,0.2,1);
+  --trans-slow:   0.45s cubic-bezier(0.4,0,0.2,1);
+}
+
+/* ──── Base Reset ──── */
+*, *::before, *::after {
+  box-sizing: border-box;
+}
+
+html {
+  scroll-behavior: smooth;
+}
+
+body {
+  background-color: var(--bg);
+  color: var(--text);
+  font-family: var(--font-body);
+  font-size: 15px;
+  line-height: 1.65;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+h1, h2, h3, h4, h5, h6 {
+  font-family: var(--font-display);
+  font-weight: 500;
+  line-height: 1.2;
+}
+
+.mono, code, kbd {
+  font-family: var(--font-mono);
+}
+
+a {
+  color: inherit;
+  text-decoration: none;
+}
+
+img {
+  max-width: 100%;
+  display: block;
+}
+
+/* ──── Scrollbar ──── */
+::-webkit-scrollbar { width: 6px; height: 6px; }
+::-webkit-scrollbar-track { background: var(--panel); }
+::-webkit-scrollbar-thumb { background: rgba(212,175,55,0.25); border-radius: 0; }
+::-webkit-scrollbar-thumb:hover { background: rgba(212,175,55,0.45); }
+
+/* ──── Selection ──── */
+::selection {
+  background: rgba(212,175,55,0.25);
+  color: var(--gold-bright);
+}
+
+/* ──── Component classes ──── */
+@layer components {
+
+  /* Buttons */
+  .btn-gold {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    padding: 0.75rem 1.5rem;
+    font-family: var(--font-mono);
+    font-size: 0.75rem;
+    font-weight: 500;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    background: var(--gold);
+    color: #0a0a0a;
+    border: none;
+    transition: background var(--trans), transform var(--trans);
+  }
+  .btn-gold:hover {
+    background: var(--gold-bright);
+    transform: translateY(-1px);
+  }
+
+  .btn-outline {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    padding: 0.75rem 1.5rem;
+    font-family: var(--font-mono);
+    font-size: 0.75rem;
+    font-weight: 500;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    background: transparent;
+    color: var(--gold-bright);
+    border: 1px solid var(--line-hard);
+    transition: all var(--trans);
+  }
+  .btn-outline:hover {
+    background: var(--gold-dim);
+    border-color: var(--gold);
+    color: var(--gold-bright);
+  }
+
+  /* Section label */
+  .section-label {
+    display: block;
+    font-size: 0.75rem;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    margin-bottom: 0.75rem;
+    font-family: var(--font-mono);
+    color: var(--gold);
+  }
+
+  /* Display heading */
+  .display {
+    font-family: var(--font-display);
+    font-weight: 500;
+  }
+
+  /* Gold rule */
+  .gold-rule {
+    height: 1px;
+    background: linear-gradient(90deg, var(--gold), transparent);
+    border: none;
+    margin: 0;
+  }
+
+  /* Card */
+  .card {
+    background: var(--panel);
+    border: 1px solid var(--line);
+    transition: border-color var(--trans), box-shadow var(--trans);
+  }
+  .card:hover {
+    border-color: var(--line-hard);
+    box-shadow: 0 0 24px var(--gold-glow);
+  }
+
+  /* Badge */
+  .badge-novo      { display: inline-block; padding: 0.125rem 0.5rem; font-size: 0.75rem; border-width: 1px; font-family:var(--font-mono); color:#60a5fa; border-color:rgba(96,165,250,0.3); background:rgba(96,165,250,0.06); }
+  .badge-contato   { display: inline-block; padding: 0.125rem 0.5rem; font-size: 0.75rem; border-width: 1px; font-family:var(--font-mono); color:#fb923c; border-color:rgba(251,146,60,0.3); background:rgba(251,146,60,0.06); }
+  .badge-qualificado { display: inline-block; padding: 0.125rem 0.5rem; font-size: 0.75rem; border-width: 1px; font-family:var(--font-mono); color:#a78bfa; border-color:rgba(167,139,250,0.3); background:rgba(167,139,250,0.06); }
+  .badge-proposta  { display: inline-block; padding: 0.125rem 0.5rem; font-size: 0.75rem; border-width: 1px; font-family:var(--font-mono); color:#d4af37; border-color:rgba(212,175,55,0.3); background:rgba(212,175,55,0.07); }
+  .badge-negociacao { display: inline-block; padding: 0.125rem 0.5rem; font-size: 0.75rem; border-width: 1px; font-family:var(--font-mono); color:#f59e0b; border-color:rgba(245,158,11,0.3); background:rgba(245,158,11,0.06); }
+  .badge-ganho     { display: inline-block; padding: 0.125rem 0.5rem; font-size: 0.75rem; border-width: 1px; font-family:var(--font-mono); color:#4ade80; border-color:rgba(74,222,128,0.3); background:rgba(74,222,128,0.06); }
+  .badge-perdido   { display: inline-block; padding: 0.125rem 0.5rem; font-size: 0.75rem; border-width: 1px; font-family:var(--font-mono); color:#f87171; border-color:rgba(248,113,113,0.3); background:rgba(248,113,113,0.06); }
+
+  /* Form */
+  .form-input {
+    width: 100%;
+    padding: 0.75rem 1rem;
+    font-size: 0.875rem;
+    background: var(--panel-2);
+    border: 1px solid var(--line);
+    color: var(--text);
+    outline: none;
+    transition: border-color var(--trans);
+  }
+  .form-input:focus {
+    border-color: var(--gold);
+  }
+  .form-input::placeholder {
+    color: var(--muted);
+  }
+
+  .form-label {
+    display: block;
+    font-size: 0.75rem;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    margin-bottom: 0.5rem;
+    font-family: var(--font-mono);
+    color: var(--muted);
+  }
+}
+
+/* ──── Animations ──── */
+@keyframes fadeInUp {
+  from { opacity: 0; transform: translateY(24px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+@keyframes fadeIn {
+  from { opacity: 0; }
+  to   { opacity: 1; }
+}
+@keyframes pulse-gold {
+  0%, 100% { box-shadow: 0 0 0 0 rgba(212,175,55,0.4); }
+  50%       { box-shadow: 0 0 0 12px rgba(212,175,55,0); }
+}
+@keyframes shimmer {
+  0%   { background-position: -200% 0; }
+  100% { background-position:  200% 0; }
+}
+@keyframes draw-line {
+  from { stroke-dashoffset: 1000; }
+  to   { stroke-dashoffset: 0; }
+}
+
+.animate-fade-up    { animation: fadeInUp 0.6s ease both; }
+.animate-fade-in    { animation: fadeIn 0.5s ease both; }
+.animate-pulse-gold { animation: pulse-gold 2.5s infinite; }
+
+/* Stagger delay helpers */
+.delay-100 { animation-delay: 0.1s; }
+.delay-200 { animation-delay: 0.2s; }
+.delay-300 { animation-delay: 0.3s; }
+.delay-400 { animation-delay: 0.4s; }
+.delay-500 { animation-delay: 0.5s; }
+.delay-600 { animation-delay: 0.6s; }
+
+/* Skeleton loader */
+.skeleton {
+  background: linear-gradient(90deg, var(--panel-2) 25%, var(--panel-3) 37%, var(--panel-2) 63%);
+  background-size: 400% 100%;
+  animation: shimmer 1.4s ease infinite;
+}
