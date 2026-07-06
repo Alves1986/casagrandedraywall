@@ -13,9 +13,9 @@ export default async function OrcamentosPage() {
     <div>
       <div className="flex items-center justify-between mb-8">
         <h1 className="display text-3xl">Orçamentos</h1>
-        <button className="btn-gold">
-          <FilePlus size={16} /> Novo Orçamento
-        </button>
+        <Link href="/painel/orcamentos/novo" className="btn-gold">
+          <Plus size={16} /> Novo Orçamento
+        </Link>
       </div>
 
       <div className="card mb-8">

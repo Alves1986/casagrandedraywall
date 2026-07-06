@@ -13,9 +13,9 @@ export default async function ProjetosPage() {
     <div>
       <div className="flex items-center justify-between mb-8">
         <h1 className="display text-3xl">Projetos</h1>
-        <button className="btn-gold">
+        <Link href="/painel/projetos/novo" className="btn-gold">
           <Plus size={16} /> Novo Projeto
-        </button>
+        </Link>
       </div>
 
       <div className="card mb-8">

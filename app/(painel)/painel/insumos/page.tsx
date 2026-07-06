@@ -13,7 +13,9 @@ export default async function InsumosPage() {
         <h1 className="display text-3xl">Estoque e Insumos</h1>
         <div className="flex gap-4">
           <button className="btn-outline text-gold border-line hover:border-gold">Nova Compra</button>
-          <button className="btn-gold"><Plus size={16} /> Novo Insumo</button>
+          <Link href="/painel/insumos/novo" className="btn-gold">
+            <Plus size={16} /> Novo Insumo
+          </Link>
         </div>
       </div>
 

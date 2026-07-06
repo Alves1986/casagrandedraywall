@@ -15,9 +15,9 @@ export default async function LeadsPage() {
     <div>
       <div className="flex items-center justify-between mb-8">
         <h1 className="display text-3xl">Funil de Vendas (Leads)</h1>
-        <button className="btn-gold">
+        <Link href="/painel/leads/novo" className="btn-gold">
           <Plus size={16} /> Novo Lead
-        </button>
+        </Link>
       </div>
 
       <div className="flex gap-4 mb-8">
