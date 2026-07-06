@@ -1,6 +1,5 @@
 import { NextResponse } from 'next/server'
 import { calcularEstimativa } from '@/lib/calculadora/regras'
-import { createClient } from '@/lib/supabase/server'
 import type { LeadServico } from '@/types'
 
 export async function POST(req: Request) {
@@ -22,7 +21,12 @@ export async function POST(req: Request) {
 
     // 2. Tentar salvar o Lead no Supabase e disparar WPP
     try {
-      const supabase = await createClient()
+      // Usar a chave SERVICE_ROLE para bypass de RLS na inserção via API
+      const supabaseUrl = process.env.SUPABASE_URL || process.env.NEXT_PUBLIC_SUPABASE_URL!
+      const supabaseServiceKey = process.env.SUPABASE_SERVICE_ROLE_KEY!
+      
+      const { createClient } = await import('@supabase/supabase-js')
+      const supabase = createClient(supabaseUrl, supabaseServiceKey)
       
       // Inserir Lead
       const { data: lead, error: leadError } = await supabase
