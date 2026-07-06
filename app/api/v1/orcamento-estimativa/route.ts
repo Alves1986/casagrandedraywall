@@ -77,9 +77,11 @@ async function enviarWhatsAppEvolution(contato: any, servico: string, quantidade
   const companyPhone = process.env.COMPANY_WHATSAPP_NUMBER
 
   if (!apiUrl || !apiKey || !instance || !companyPhone) {
-    console.log('Variáveis da Evolution API não configuradas, pulando notificação WPP.')
+    console.error('ERRO: Variáveis da Evolution API não configuradas, pulando notificação WPP.', { apiUrl: !!apiUrl, apiKey: !!apiKey, instance: !!instance, companyPhone: !!companyPhone })
     return
   }
+
+  console.log(`Iniciando envio via Evolution API para a instancia ${instance} no numero ${companyPhone}`)
 
   const fmt = (v: number) => new Intl.NumberFormat('pt-BR', { style: 'currency', currency: 'BRL', minimumFractionDigits: 0 }).format(v)
   
@@ -99,6 +101,7 @@ async function enviarWhatsAppEvolution(contato: any, servico: string, quantidade
 👉 Entre em contato o mais rápido possível!`
 
   const endpoint = `${apiUrl}/message/sendText/${instance}`
+  console.log(`Enviando POST para: ${endpoint}`)
   
   const res = await fetch(endpoint, {
     method: 'POST',
@@ -120,8 +123,11 @@ async function enviarWhatsAppEvolution(contato: any, servico: string, quantidade
 
   if (!res.ok) {
     const data = await res.text()
+    console.error(`Evolution API Falhou com status ${res.status}:`, data)
     throw new Error(`Falha ao enviar WPP via Evolution API: ${res.status} ${data}`)
   }
+  
+  console.log('Mensagem enviada com sucesso para Evolution API!')
 }
 
 
