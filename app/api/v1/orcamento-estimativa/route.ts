@@ -13,7 +13,7 @@ export async function POST(req: Request) {
     }
 
     // 1. Calcular a estimativa
-    const estimativa = calcularEstimativa({
+    const estimativa = await calcularEstimativa({
       servico: servico as LeadServico,
       quantidade: Number(quantidade),
       unidade: (servico === 'eletrica' ? 'pontos' : 'm2') as 'm2' | 'pontos',

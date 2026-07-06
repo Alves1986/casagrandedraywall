@@ -9,24 +9,19 @@ export default function LoginPage() {
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState('')
 
-  const handleLogin = (e: React.FormEvent<HTMLFormElement>) => {
+  const handleLogin = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault()
     setLoading(true)
     setError('')
     
-    // Mock authentication para Fase 1
     const fd = new FormData(e.currentTarget)
-    const email = fd.get('email')
-    const pass = fd.get('password')
-
-    setTimeout(() => {
-      if (email === 'admin@casagrande.com' && pass === 'admin123') {
-        router.push('/painel')
-      } else {
-        setError('E-mail ou senha incorretos. (Dica Fase 1: admin@casagrande.com / admin123)')
-        setLoading(false)
-      }
-    }, 1000)
+    const { login } = await import('./actions')
+    const res = await login(fd)
+    
+    if (res?.error) {
+      setError(res.error)
+      setLoading(false)
+    }
   }
 
   return (

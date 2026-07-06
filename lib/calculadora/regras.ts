@@ -4,8 +4,10 @@
 
 import type { EstimativaInput, EstimativaResult, BreakdownItem } from '@/types'
 
-// Tabela de preços base (por unidade)
-export const TABELA_PRECOS = {
+import { createClient } from '@/lib/supabase/server'
+
+// Fallback local se o banco falhar
+export const DEFAULT_PRECOS = {
   drywall: {
     simples: { label: 'Divisória simples (parede única)', preco: 135, min_mult: 0.9, max_mult: 1.25 },
     dupla:   { label: 'Parede dupla (insonorização)',     preco: 200, min_mult: 0.9, max_mult: 1.25 },
@@ -23,33 +25,65 @@ export const TABELA_PRECOS = {
     vedacao: { label: 'Vedação em Drywall',       preco: 350 },
   },
   desconto_combo: 0.15,
-} as const
+}
+
+export async function getTabelaPrecos() {
+  try {
+    const sb = await createClient()
+    const { data } = await sb.from('configuracoes_precos').select('chave, valor')
+    
+    if (data && data.length > 0) {
+      // Clonar os padrões e injetar os valores do banco
+      const p = JSON.parse(JSON.stringify(DEFAULT_PRECOS))
+      for (const row of data) {
+        const val = Number(row.valor)
+        if (row.chave === 'drywall.simples') p.drywall.simples.preco = val
+        if (row.chave === 'drywall.dupla') p.drywall.dupla.preco = val
+        if (row.chave === 'drywall.forro') p.drywall.forro.preco = val
+        if (row.chave === 'eletrica.residencial') p.eletrica.residencial.preco = val
+        if (row.chave === 'eletrica.comercial') p.eletrica.comercial.preco = val
+        if (row.chave === 'eletrica.ac_unit') p.eletrica.ac_unit.preco = val
+        if (row.chave === 'steel.1') p.steel['1'].preco = val
+        if (row.chave === 'steel.2') p.steel['2'].preco = val
+        if (row.chave === 'steel.3') p.steel['3'].preco = val
+        if (row.chave === 'steel.vedacao') p.steel.vedacao.preco = val
+        if (row.chave === 'desconto_combo') p.desconto_combo = val
+      }
+      return p as typeof DEFAULT_PRECOS
+    }
+  } catch (e) {
+    console.warn("Erro ao buscar preços do supabase, usando defaults", e)
+  }
+  return DEFAULT_PRECOS
+}
 
 function fmt(v: number) {
   return new Intl.NumberFormat('pt-BR', { style: 'currency', currency: 'BRL', minimumFractionDigits: 0 }).format(v)
 }
 
-export function calcularEstimativa(input: EstimativaInput): EstimativaResult {
+export async function calcularEstimativa(input: EstimativaInput): Promise<EstimativaResult> {
   const { servico, quantidade, detalhes = {} } = input
   let base = 0
   const breakdown: BreakdownItem[] = []
+  
+  const tabela = await getTabelaPrecos()
 
   if (servico === 'drywall') {
-    const tipo = (detalhes.tipo as keyof typeof TABELA_PRECOS.drywall) || 'simples'
-    const t = TABELA_PRECOS.drywall[tipo]
+    const tipo = (detalhes.tipo as keyof typeof tabela.drywall) || 'simples'
+    const t = tabela.drywall[tipo]
     base = quantidade * t.preco
     breakdown.push({ descricao: `${t.label} — ${quantidade} m²`, valor: base })
   }
 
   else if (servico === 'eletrica') {
     const tOp = (detalhes.tipo_obra === 'comercial') ? 'comercial' : 'residencial'
-    const rateP = TABELA_PRECOS.eletrica[tOp].preco
+    const rateP = tabela.eletrica[tOp].preco
     const pontosCost = quantidade * rateP
     base += pontosCost
     breakdown.push({ descricao: `${quantidade} pontos (${tOp}) × ${fmt(rateP)}`, valor: pontosCost })
     const ac = detalhes.ac_units || 0
     if (ac > 0) {
-      const acCost = ac * TABELA_PRECOS.eletrica.ac_unit.preco
+      const acCost = ac * tabela.eletrica.ac_unit.preco
       base += acCost
       breakdown.push({ descricao: `${ac} circuito(s) dedicado(s) AC`, valor: acCost })
     }
@@ -57,12 +91,12 @@ export function calcularEstimativa(input: EstimativaInput): EstimativaResult {
 
   else if (servico === 'steel_frame') {
     const pavKey = String(Math.min(detalhes.pavimentos || 1, 3)) as '1' | '2' | '3'
-    const rateS = TABELA_PRECOS.steel[pavKey].preco
+    const rateS = tabela.steel[pavKey].preco
     const sfCost = quantidade * rateS
     base += sfCost
     breakdown.push({ descricao: `Estrutura SF ${pavKey} pav. × ${quantidade} m²`, valor: sfCost })
     if (detalhes.com_vedacao) {
-      const dwCost = quantidade * TABELA_PRECOS.steel.vedacao.preco
+      const dwCost = quantidade * tabela.steel.vedacao.preco
       base += dwCost
       breakdown.push({ descricao: `Vedação Drywall × ${quantidade} m²`, valor: dwCost })
     }
@@ -70,7 +104,7 @@ export function calcularEstimativa(input: EstimativaInput): EstimativaResult {
 
   else if (servico === 'combinado') {
     // quantidade = sf_area; detalhes deve conter dw_area e el_pontos
-    const sfCost = quantidade * TABELA_PRECOS.steel['1'].preco
+    const sfCost = quantidade * tabela.steel['1'].preco
     breakdown.push({ descricao: `Steel Frame (${quantidade} m²)`, valor: sfCost })
     base += sfCost
 
@@ -78,18 +112,18 @@ export function calcularEstimativa(input: EstimativaInput): EstimativaResult {
     const dwArea = (detalhes as unknown as Record<string, number>).dw_area || 0
     const elPontos = (detalhes as unknown as Record<string, number>).el_pontos || 0
     if (dwArea) {
-      const d = dwArea * TABELA_PRECOS.drywall.simples.preco
+      const d = dwArea * tabela.drywall.simples.preco
       base += d
       breakdown.push({ descricao: `Drywall (${dwArea} m²)`, valor: d })
     }
     if (elPontos) {
-      const e = elPontos * TABELA_PRECOS.eletrica.residencial.preco
+      const e = elPontos * tabela.eletrica.residencial.preco
       base += e
       breakdown.push({ descricao: `Elétrica (${elPontos} pts)`, valor: e })
     }
-    const desconto = base * TABELA_PRECOS.desconto_combo
+    const desconto = base * tabela.desconto_combo
     base -= desconto
-    breakdown.push({ descricao: 'Desconto integração (−15%)', valor: -desconto })
+    breakdown.push({ descricao: 'Desconto integração (−' + (tabela.desconto_combo*100) + '%)', valor: -desconto })
   }
 
   const min = Math.round(base * 0.9)

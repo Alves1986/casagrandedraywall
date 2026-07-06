@@ -36,11 +36,11 @@ export default async function LeadsPage() {
         </div>
       )}
 
-      <div className="grid grid-cols-1 lg:grid-cols-5 gap-4 overflow-x-auto pb-4">
+      <div className="flex gap-4 overflow-x-auto pb-4 items-start">
         {['novo', 'contato', 'qualificado', 'proposta', 'negociacao'].map(estagio => {
           const leadsEstagio = leads.filter(l => l.estagio_funil === estagio)
           return (
-            <div key={estagio} className="bg-panel-2 border border-line rounded-sm min-w-[280px]">
+            <div key={estagio} className="bg-panel-2 border border-line rounded-sm min-w-[280px] w-[280px] flex-shrink-0">
               <div className="p-4 border-b border-line flex justify-between items-center">
                 <div className="font-mono text-xs uppercase tracking-widest text-muted font-medium">
                   {estagio.replace('_', ' ')}

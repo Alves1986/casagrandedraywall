@@ -48,10 +48,15 @@ export default function Sidebar() {
       </nav>
 
       <div className="p-4 border-t border-line space-y-2">
-        <button className="w-full flex items-center gap-3 px-4 py-2.5 text-muted hover:text-text hover:bg-panel-2 rounded-sm transition-colors font-mono text-xs uppercase tracking-wider text-left">
+        <Link href="/painel/configuracoes" className="w-full flex items-center gap-3 px-4 py-2.5 text-muted hover:text-text hover:bg-panel-2 rounded-sm transition-colors font-mono text-xs uppercase tracking-wider text-left">
           <Settings size={16} /> Configurações
-        </button>
-        <button className="w-full flex items-center gap-3 px-4 py-2.5 text-red-400 hover:text-red-300 hover:bg-red-400/10 rounded-sm transition-colors font-mono text-xs uppercase tracking-wider text-left">
+        </Link>
+        <button 
+          onClick={async () => {
+            const { logout } = await import('@/app/(painel)/login/actions')
+            await logout()
+          }}
+          className="w-full flex items-center gap-3 px-4 py-2.5 text-red-400 hover:text-red-300 hover:bg-red-400/10 rounded-sm transition-colors font-mono text-xs uppercase tracking-wider text-left">
           <LogOut size={16} /> Sair
         </button>
       </div>
