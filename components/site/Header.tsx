@@ -19,16 +19,16 @@ export default function Header() {
   return (
     <header style={{ background: 'var(--panel)', borderBottom: '1px solid var(--line)' }}
       className="fixed top-0 left-0 right-0 z-50">
-      <div className="max-w-7xl mx-auto px-6 h-16 flex items-center justify-between">
+      <div className="max-w-7xl mx-auto px-6 h-24 flex items-center justify-between">
         {/* Logo */}
-        <Link href="/" className="flex items-center gap-3">
-          <Image src="/branding/logo.webp" alt="Casa Grande Drywall" width={56} height={56}
+        <Link href="/" className="flex items-center gap-4">
+          <Image src="/branding/logo.webp" alt="Casa Grande Drywall" width={80} height={80}
             className="object-contain" />
           <div>
-            <div className="font-display text-lg font-medium leading-none" style={{ color: 'var(--text)' }}>
+            <div className="font-display text-2xl font-medium leading-none" style={{ color: 'var(--text)' }}>
               Casa Grande
             </div>
-            <div className="font-mono text-[10px] tracking-widest uppercase mt-1" style={{ color: 'var(--gold)' }}>
+            <div className="font-mono text-xs tracking-widest uppercase mt-1" style={{ color: 'var(--gold)' }}>
               Drywall • Elétrica • Steel Frame
             </div>
           </div>

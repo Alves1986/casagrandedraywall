@@ -34,9 +34,9 @@ export default function LoginPage() {
 
       <div className="w-full max-w-md relative z-10">
         <div className="text-center mb-8">
-          <Image src="/branding/logo.webp" alt="Logo" width={64} height={64} className="mx-auto mb-4" />
-          <h1 className="display text-3xl mb-1">Acesso ao CRM</h1>
-          <p className="text-muted text-sm">Casa Grande Drywall</p>
+          <Image src="/branding/logo.webp" alt="Logo" width={96} height={96} className="mx-auto mb-4" />
+          <h1 className="display text-4xl mb-1">Acesso ao CRM</h1>
+          <p className="text-muted text-base">Casa Grande Drywall</p>
         </div>
 
         <div className="card p-8">
