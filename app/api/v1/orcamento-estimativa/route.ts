@@ -54,7 +54,8 @@ export async function POST(req: Request) {
         }])
       }
 
-      // Disparo de notificação será feito pelo Supabase Edge Functions (via Database Webhook)
+      // 3. Disparar notificação silenciosa para a empresa via Evolution API (movido de volta para Vercel para evitar bloqueio de Edge Functions)
+      await enviarWhatsAppEvolution(contato, servico, quantidade, estimativa, detalhes).catch(e => console.error('Erro no WPP:', e))
 
     } catch (dbError) {
       console.warn('Não foi possível salvar lead no DB:', dbError)
@@ -66,6 +67,60 @@ export async function POST(req: Request) {
   } catch (err: any) {
     console.error('Erro /api/v1/orcamento-estimativa:', err)
     return NextResponse.json({ error: 'Erro interno no servidor' }, { status: 500 })
+  }
+}
+
+async function enviarWhatsAppEvolution(contato: any, servico: string, quantidade: number, estimativa: any, detalhes: any) {
+  const apiUrl = process.env.EVOLUTION_API_URL
+  const apiKey = process.env.EVOLUTION_API_KEY
+  const instance = process.env.EVOLUTION_INSTANCE_NAME
+  const companyPhone = process.env.COMPANY_WHATSAPP_NUMBER
+
+  if (!apiUrl || !apiKey || !instance || !companyPhone) {
+    console.log('Variáveis da Evolution API não configuradas, pulando notificação WPP.')
+    return
+  }
+
+  const fmt = (v: number) => new Intl.NumberFormat('pt-BR', { style: 'currency', currency: 'BRL', minimumFractionDigits: 0 }).format(v)
+  
+  const detalhesMsg = (detalhes.cep || detalhes.endereco) 
+    ? `\n📍 *CEP*: ${detalhes.cep || 'N/A'}\n🗺️ *Endereço*: ${detalhes.endereco || 'N/A'}` 
+    : ''
+
+  const text = `🚨 *NOVO ORÇAMENTO GERADO NO SITE!* 🚨
+
+👤 *Nome*: ${contato.nome}
+📱 *WhatsApp*: ${contato.telefone}
+🛠️ *Serviço*: ${servico.toUpperCase()}${detalhesMsg}
+📏 *Quantidade/Área*: ${quantidade}
+
+💰 *Estimativa Gerada*: ${fmt(estimativa.valor_minimo)} a ${fmt(estimativa.valor_maximo)}
+
+👉 Entre em contato o mais rápido possível!`
+
+  const endpoint = `${apiUrl}/message/sendText/${instance}`
+  
+  const res = await fetch(endpoint, {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+      'apikey': apiKey
+    },
+    body: JSON.stringify({
+      number: companyPhone,
+      options: {
+        delay: 1200,
+        presence: "composing"
+      },
+      textMessage: {
+        text
+      }
+    })
+  })
+
+  if (!res.ok) {
+    const data = await res.text()
+    throw new Error(`Falha ao enviar WPP via Evolution API: ${res.status} ${data}`)
   }
 }
 
