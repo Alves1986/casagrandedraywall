@@ -274,12 +274,13 @@ export default function CalculadoraOrcamento() {
             <p className="text-sm text-muted mb-8 max-w-md mx-auto">
               {estimativa.obs}
             </p>
-
-            <a href={waMessage(`Olá! Fiz uma simulação no site para ${SERVICOS.find(s=>s.id===servico)?.title} e a estimativa ficou entre ${fmtBRL(estimativa.valor_minimo)} e ${fmtBRL(estimativa.valor_maximo)}. Podemos conversar sobre o projeto?`)}
-              target="_blank" rel="noopener"
-              className="btn-gold w-full justify-center text-[13px] py-4 shadow-[0_0_30px_rgba(212,175,55,0.2)] hover:shadow-[0_0_40px_rgba(212,175,55,0.4)]">
-              Falar com o Sandro no WhatsApp <ArrowRight size={16} />
-            </a>
+            
+            <div className="bg-gold/10 border border-gold/30 p-6 rounded-sm text-gold">
+              <h3 className="font-display text-xl mb-2">Tudo certo!</h3>
+              <p className="text-sm text-gold/80">
+                Nossa equipe acabou de receber os seus dados e a sua estimativa. Em breve, o <strong>Sandro</strong> entrará em contato com você pelo WhatsApp para conversarmos sobre o projeto!
+              </p>
+            </div>
           </div>
         )}
       </div>
