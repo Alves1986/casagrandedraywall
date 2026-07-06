@@ -51,8 +51,8 @@ export async function POST(req: Request) {
       }
 
       // 3. Disparar notificação silenciosa para a empresa via Evolution API
-      // Não damos await nela se quisermos que seja background, ou damos await no fire-and-forget
-      enviarWhatsAppEvolution(contato, servico, quantidade, estimativa).catch(e => console.error('Erro no WPP:', e))
+      // Precisamos dar await pois as serverless functions (Vercel) morrem ao retornar a resposta, matando promessas pendentes.
+      await enviarWhatsAppEvolution(contato, servico, quantidade, estimativa).catch(e => console.error('Erro no WPP:', e))
 
     } catch (dbError) {
       console.warn('Não foi possível salvar lead no DB ou disparar wpp:', dbError)
